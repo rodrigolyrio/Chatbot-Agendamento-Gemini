@@ -49,7 +49,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configuração de Credenciais (MUITO IMPORTANTE)
+### 3. Configuração de Credenciais
 
 Este projeto necessita de duas chaves de acesso que **NÃO** devem ser enviadas para o GitHub.
 
