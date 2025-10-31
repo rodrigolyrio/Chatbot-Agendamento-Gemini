@@ -9,18 +9,16 @@ import re # Importado para limpeza avançada da string
 
 # --- 1. CONFIGURAÇÃO DAS APIS ---
 
-# Configura a API do Google Gemini
-GEMINI_API_KEY = "AIzaSyDqjglh684zfWzECkGc_fmQqe4UO17hhgo" 
+GEMINI_API_KEY = "----" # Removido por segurança. Para teste, importar sua própria API Key.
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Configura a API do Google Sheets
 gc = gspread.service_account(filename='credentials.json')
-sh = gc.open("AgendaClínica")
+sh = gc.open("AgendaClínica") # Para teste, nome deve ser alterado.
 worksheet = sh.sheet1
 
 # --- 2. FUNÇÕES DE LÓGICA DA AGENDA ---
 
-# A função encontrar_horarios_disponiveis continua a mesma...
 def encontrar_horarios_disponiveis(dia_desejado, duracao_minutos=60):
     try:
         registros = worksheet.get_all_records()
@@ -89,11 +87,9 @@ O formato do JSON deve ser:
 {{"acao": "agendar", "nome": "NOME COMPLETO", "contato": "TELEFONE", "motivo": "MOTIVO", "data_desejada": "YYYY-MM-DD HH:MM:SS"}}
 """
 
-# Inicializa o histórico de chat
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Inicializa o chat do Gemini
 if "chat" not in st.session_state:
     data_hoje = datetime.now().strftime("%Y-%m-%d")
     system_prompt_preenchido = system_prompt_template.format(data_atual=data_hoje)
@@ -103,7 +99,6 @@ if "chat" not in st.session_state:
         {'role': 'model', 'parts': ["Olá! Eu sou a Clara, sua assistente virtual. Como posso lhe ajudar hoje? Você gostaria de marcar uma limpeza, avaliação, ou tem uma emergência?"]}
     ])
 
-# Exibe o histórico de mensagens
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
@@ -116,14 +111,10 @@ if prompt := st.chat_input("Digite sua mensagem..."):
 
     response = st.session_state.chat.send_message(prompt)
     
-    # --- LÓGICA DE INTERPRETAÇÃO DA RESPOSTA (COM A CORREÇÃO) ---
     resposta_ia = response.text
     final_response = ""
 
     try:
-        # **A CORREÇÃO ESTÁ AQUI**
-        # Limpa a resposta da IA, removendo a formatação de markdown
-        # Isso garante que a string comece com '{' e termine com '}'
         match = re.search(r'\{.*\}', resposta_ia, re.DOTALL)
         if match:
             clean_json_str = match.group(0)
@@ -142,7 +133,6 @@ if prompt := st.chat_input("Digite sua mensagem..."):
             # Converte a string de data para um objeto datetime
             data_obj = datetime.strptime(data_str, '%Y-%m-%d %H:%M:%S')
 
-            # Chama a função para salvar na planilha
             sucesso = agendar_consulta(
                 nome=nome, contato=contato, motivo=motivo, data_inicio=data_obj
             )
@@ -154,18 +144,19 @@ if prompt := st.chat_input("Digite sua mensagem..."):
             else:
                 final_response = "Peço desculpas, mas não consegui realizar o agendamento devido a um erro interno ao salvar na agenda. Por favor, tente novamente."
         else:
-            # Se for um JSON mas não for uma ação de agendamento, apenas mostre
+            # Se for um JSON mas não for uma ação de agendamento, apenas mostre.
             final_response = resposta_ia
 
     except (json.JSONDecodeError, TypeError):
         # Se não for um JSON, é uma conversa normal.
         final_response = resposta_ia
     except Exception as e:
-        # Captura QUALQUER outro erro que acontecer
+        # Captura qualquer outro erro que acontecer..
         final_response = "Desculpe, encontrei um problema ao processar sua solicitação. Poderia tentar novamente?"
         print(f"Ocorreu um erro inesperado: {e}") 
     
     # Adiciona e exibe a resposta final do bot
     st.session_state.messages.append({"role": "assistant", "content": final_response})
     with st.chat_message("assistant"):
+
         st.markdown(final_response)
