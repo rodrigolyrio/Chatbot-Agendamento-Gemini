@@ -1,9 +1,7 @@
 # check_models.py
 import google.generativeai as genai
 
-# --- IMPORTANTE: COLOQUE SUA CHAVE AQUI DENTRO DAS ASPAS ---
-# Lembre-se que esta chave é sensível. Não compartilhe o arquivo com ela.
-GEMINI_API_KEY = "AIzaSyDqjglh684zfWzECkGc_fmQqe4UO17hhgo" 
+GEMINI_API_KEY = "---" # removido por segurança. Adicionar sua própria API Key. 
 
 try:
     genai.configure(api_key=GEMINI_API_KEY)
@@ -26,4 +24,5 @@ except Exception as e:
     print("\nPossíveis causas:")
     print("- A chave de API está incorreta ou inválida.")
     print("- A API 'Generative Language' (ou a API de Vertex AI) não está ativada no seu projeto Google Cloud.")
+
     print("- Problemas de conexão com a internet.")
